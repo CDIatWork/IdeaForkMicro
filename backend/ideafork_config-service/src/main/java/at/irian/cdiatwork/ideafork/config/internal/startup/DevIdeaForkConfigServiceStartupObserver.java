@@ -5,6 +5,7 @@ import at.irian.cdiatwork.ideafork.config.repository.ConfigRepository;
 import org.apache.deltaspike.core.api.exclude.Exclude;
 import org.apache.deltaspike.core.api.projectstage.ProjectStage;
 
+import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
@@ -12,7 +13,7 @@ import javax.enterprise.event.Observes;
 @Exclude(exceptIfProjectStage = ProjectStage.Development.class)
 @ApplicationScoped
 public class DevIdeaForkConfigServiceStartupObserver {
-    protected void onStartup(@Observes @Initialized(ApplicationScoped.class) Object ideaForkStartedEvent,
+    protected void onStartup(@Observes @Initialized(ApplicationScoped.class) @Priority(2) Object ideaForkStartedEvent,
                              ConfigRepository configRepository) {
 
         configRepository.save(new ConfigEntry("maxNumberOfHighestRatedCategories", "10"));
