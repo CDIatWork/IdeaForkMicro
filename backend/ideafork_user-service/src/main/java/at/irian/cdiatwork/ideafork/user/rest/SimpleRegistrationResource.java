@@ -38,7 +38,7 @@ public class SimpleRegistrationResource {
             User registeredUser = userRepository.findBy(savedUser.getId());
 
             if (registeredUser != null) {
-                return Response.created(uriInfo.getBaseUriBuilder()
+                return Response.created(uriInfo.getBaseUriBuilder().path(SimpleLoginResource.class)
                         .build()).entity(new PublicUserResponse(savedUser, true))
                         .type(MediaType.APPLICATION_JSON_TYPE).build();
             }

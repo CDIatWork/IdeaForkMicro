@@ -19,7 +19,15 @@
         <openwebbeans.version>2.0.0</openwebbeans.version>
         <ds.version>1.8.0</ds.version>
         <failOnMissingWebXml>false</failOnMissingWebXml>
+        <jwt.secret>30fba30612504d49f8dfcbe4be171d176afb9d17c0d43c283645fa262ea94054eea16c678db8be56739ee91a56cb99</jwt.secret>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>jwt-authentication-lite</id>
+            <url>https://raw.githubusercontent.com/CDIatWork/jwt-authentication-lite/master/m2-repository/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <!-- used spec.-apis -->
@@ -137,6 +145,13 @@
             <artifactId>deltaspike-data-module-impl</artifactId>
             <version>${ds.version}</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- internal modules -->
+        <dependency>
+            <groupId>at.irian.cdiatwork</groupId>
+            <artifactId>jwt-authentication-lite</artifactId>
+            <version>0.0.1</version>
         </dependency>
 
         <!-- testing -->
