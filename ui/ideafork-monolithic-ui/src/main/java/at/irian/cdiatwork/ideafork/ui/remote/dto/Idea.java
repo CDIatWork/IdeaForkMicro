@@ -1,9 +1,19 @@
 package at.irian.cdiatwork.ideafork.ui.remote.dto;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 public class Idea {
     private String id;
+
+    @NotNull
+    @Size(min = 1, max = 64)
     private String topic;
+
+    @NotNull
+    @Size(min = 1, max = 64)
     private String category;
+
     private String description;
     private String baseIdeaId;
 

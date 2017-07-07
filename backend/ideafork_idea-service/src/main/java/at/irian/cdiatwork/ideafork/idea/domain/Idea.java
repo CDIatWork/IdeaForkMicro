@@ -2,20 +2,24 @@ package at.irian.cdiatwork.ideafork.idea.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.validation.constraints.NotEmpty;
 
 @Entity
 public class Idea extends BaseEntity {
     private static final long serialVersionUID = -3824813959555007833L;
 
+    @NotEmpty
     @Column(nullable = false)
     private String topic;
 
+    @NotEmpty
     @Column(nullable = false)
     private String category; //specified by the user
 
     @Column
     private String description;
 
+    @NotEmpty
     @Column(nullable = false)
     private String authorEmail;
 

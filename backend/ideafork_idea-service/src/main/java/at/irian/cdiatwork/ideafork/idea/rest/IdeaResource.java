@@ -1,7 +1,6 @@
 package at.irian.cdiatwork.ideafork.idea.rest;
 
 import at.irian.cdiatwork.ideafork.idea.domain.Idea;
-import at.irian.cdiatwork.ideafork.idea.domain.IdeaValidator;
 import at.irian.cdiatwork.ideafork.idea.event.IdeaChangedBroadcaster;
 import at.irian.cdiatwork.ideafork.idea.repository.IdeaRepository;
 import at.irian.cdiatwork.ideafork.idea.rest.request.IdeaCreationRequest;
@@ -27,9 +26,6 @@ public class IdeaResource {
 
     @Inject
     private IdeaRepository ideaRepository;
-
-    @Inject
-    private IdeaValidator ideaValidator;
 
     @Inject
     private IdeaChangedBroadcaster ideaChangedBroadcaster;
@@ -62,10 +58,6 @@ public class IdeaResource {
         Idea idea = new Idea(ideaCreationRequest.baseIdeaId, ideaCreationRequest.topic, ideaCreationRequest.category, email);
         idea.setDescription(ideaCreationRequest.description);
 
-        if (!this.ideaValidator.checkIdea(idea)) {
-            return Response.status(Response.Status.BAD_REQUEST).build(); //here we could also provide a message with a reason
-        }
-
         idea = ideaRepository.save(idea);
         ideaChangedBroadcaster.onIdeaChange(idea);
         return Response.ok().entity(new IdeaResponse(idea)).build();
@@ -88,10 +80,6 @@ public class IdeaResource {
         foundIdea.setTopic(ideaUpdateRequest.topic);
         foundIdea.setCategory(ideaUpdateRequest.category);
         foundIdea.setDescription(ideaUpdateRequest.description);
-
-        if (!this.ideaValidator.checkIdea(foundIdea)) {
-            return Response.status(Response.Status.BAD_REQUEST).build(); //here we could also provide a message with a reason
-        }
 
         Idea idea = ideaRepository.save(foundIdea);
         ideaChangedBroadcaster.onIdeaChange(idea);

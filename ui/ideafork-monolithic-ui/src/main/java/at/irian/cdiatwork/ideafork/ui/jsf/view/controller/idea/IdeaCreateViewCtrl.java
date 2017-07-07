@@ -6,6 +6,8 @@ import at.irian.cdiatwork.ideafork.ui.remote.dto.Idea;
 import at.irian.cdiatwork.ideafork.ui.remote.IdeaService;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 @ViewController
@@ -14,8 +16,14 @@ public class IdeaCreateViewCtrl implements Serializable {
     @Inject
     private IdeaService ideaService;
 
+    @NotNull
+    @Size(min = 1, max = 64)
     private String topic;
+
+    @NotNull
+    @Size(min = 1, max = 64)
     private String category;
+
     private String description;
 
     public Class<? extends Pages.Idea> save() {

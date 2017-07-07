@@ -8,6 +8,9 @@
         <mapping-file>META-INF/entities.xml</mapping-file>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
+        <!-- ensure that BV is used-->
+        <validation-mode>CALLBACK</validation-mode>
+
         <properties>
             <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
             <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:ideaForkIdea;DB_CLOSE_DELAY=-1"/>
