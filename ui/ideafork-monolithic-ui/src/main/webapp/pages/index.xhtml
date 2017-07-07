@@ -1,0 +1,65 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="/templates/main-template.xhtml">
+
+    <ui:define name="content-container">
+        <h:form>
+            <div class="jumbotron" style="background-color: #F8F8F8;">
+                <p class="lead">
+                    ... is a <strong>FREE</strong> and open platform for sharing ideas.
+                    <ul>
+                        <li>Never forget your ideas</li>
+                        <li>Publish ideas to find collaborators</li>
+                        <li>Discover ideas from others</li>
+                        <li>Fork/copy ideas to improve them on your own</li>
+                    </ul>
+                </p>
+            </div>
+
+            <h:panelGroup layout="block" styleClass="list-group" rendered="#{identityHolder.authenticated and indexViewCtrl.categoryCount gt 0}">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><span class="glyphicon glyphicon-pencil"/> New Idea</h3>
+
+                    </div>
+                    <div class="panel-body">
+                        <p>Quick-Selection of the most popular categories to start with a new idea:</p>
+                    </div>
+
+                    <div class="list-group">
+                        <ui:repeat var="currentCategoryView" value="#{indexViewCtrl.categories}">
+                            <h:commandLink action="#{ideaCreateViewCtrl.createWith(currentCategoryView.name)}" styleClass="list-group-item">
+                                <span class="badge pull-right">#{currentCategoryView.count}</span>
+                                #{currentCategoryView.name}
+                            </h:commandLink>
+                        </ui:repeat>
+                    </div>
+                </div>
+            </h:panelGroup>
+            <h:panelGroup layout="block" styleClass="list-group" rendered="#{identityHolder.authenticated and indexViewCtrl.promotedIdeaCount gt 0}">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><span class="glyphicon glyphicon-share-alt"/> Promoted ideas</h3>
+                    </div>
+                    <div class="panel-body">
+                        <p>Fork a promoted idea:</p>
+                    </div>
+                    <div class="list-group">
+                        <ui:repeat var="promotedIdea" value="#{indexViewCtrl.promotedIdeas}">
+                            <h:commandLink action="#{ideaEditViewCtrl.editIdea(promotedIdea)}" styleClass="list-group-item">
+                                #{promotedIdea.topic}
+                            </h:commandLink>
+                        </ui:repeat>
+                    </div>
+                </div>
+            </h:panelGroup>
+        </h:form>
+
+        <div class="alert alert-warning alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">x</button>
+            <strong>#{userMessage.warning()}</strong> If you publish an idea on this platform, you automatically accept that everybody is allowed to read and use it without limitations.
+        </div>
+    </ui:define>
+</ui:composition>
