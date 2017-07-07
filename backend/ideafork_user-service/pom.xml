@@ -12,10 +12,12 @@
     <version>1.0.0</version>
 
     <properties>
+        <app.http.port>8082</app.http.port>
         <commons-annotations.version>1.0</commons-annotations.version>
         <cdi-api.version>1.0.1</cdi-api.version>
         <meecrowave.version>1.1.0</meecrowave.version>
         <openwebbeans.version>2.0.0</openwebbeans.version>
+        <ds.version>1.8.0</ds.version>
         <failOnMissingWebXml>false</failOnMissingWebXml>
     </properties>
 
@@ -88,6 +90,19 @@
             <artifactId>openwebbeans-web</artifactId>
             <version>${openwebbeans.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- ds-modules -->
+        <dependency>
+            <groupId>org.apache.deltaspike.core</groupId>
+            <artifactId>deltaspike-core-api</artifactId>
+            <version>${ds.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.deltaspike.core</groupId>
+            <artifactId>deltaspike-core-impl</artifactId>
+            <version>${ds.version}</version>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 
