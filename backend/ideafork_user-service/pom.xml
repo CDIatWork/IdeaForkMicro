@@ -27,6 +27,11 @@
             <id>jwt-authentication-lite</id>
             <url>https://raw.githubusercontent.com/CDIatWork/jwt-authentication-lite/master/m2-repository/</url>
         </repository>
+
+        <repository>
+            <id>remote-access-lite</id>
+            <url>https://raw.githubusercontent.com/CDIatWork/remote-access-lite/master/m2-repository/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -151,6 +156,11 @@
         <dependency>
             <groupId>at.irian.cdiatwork</groupId>
             <artifactId>jwt-authentication-lite</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>at.irian.cdiatwork</groupId>
+            <artifactId>remote-access-lite</artifactId>
             <version>0.0.1</version>
         </dependency>
 
