@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm"
+                 version="2.0">
+
+    <mapped-superclass class="at.irian.cdiatwork.ideafork.history.domain.BaseEntity"/>
+
+    <entity class="at.irian.cdiatwork.ideafork.history.domain.EntityChange"/>
+</entity-mappings>
