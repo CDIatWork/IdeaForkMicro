@@ -5,4 +5,5 @@
     <mapped-superclass class="at.irian.cdiatwork.ideafork.user.domain.BaseEntity"/>
 
     <entity class="at.irian.cdiatwork.ideafork.user.domain.User"/>
+    <entity class="at.irian.cdiatwork.ideafork.user.domain.UserAction"/>
 </entity-mappings>

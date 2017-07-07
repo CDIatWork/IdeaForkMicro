@@ -3,11 +3,14 @@ package at.irian.cdiatwork.ideafork.user.rest;
 import at.irian.cdiatwork.ideafork.jwt.api.IdentityHolder;
 import at.irian.cdiatwork.ideafork.jwt.api.LoginEntryPoint;
 import at.irian.cdiatwork.ideafork.user.domain.User;
+import at.irian.cdiatwork.ideafork.user.domain.UserAction;
+import at.irian.cdiatwork.ideafork.user.domain.event.UserActionEvent;
 import at.irian.cdiatwork.ideafork.user.repository.UserRepository;
 import at.irian.cdiatwork.ideafork.user.rest.request.LoginRequest;
 import at.irian.cdiatwork.ideafork.user.security.PasswordManager;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -28,6 +31,9 @@ public class SimpleLoginResource {
 
     @Inject
     private IdentityHolder identityHolder;
+
+    @Inject
+    private Event<UserActionEvent> userActionEvent;
 
     @LoginEntryPoint
     @POST
@@ -50,6 +56,7 @@ public class SimpleLoginResource {
 
         if (passwordHash.equals(loadedUser.getPassword())) {
             identityHolder.setAuthenticatedEMail(loginRequest.getEmail());
+            userActionEvent.fireAsync(new UserActionEvent(new UserAction(UserAction.Type.LOGIN, loadedUser)));
 
             return Response.ok().build();
         }

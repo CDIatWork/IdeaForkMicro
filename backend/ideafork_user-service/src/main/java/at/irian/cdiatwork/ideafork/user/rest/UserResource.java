@@ -2,6 +2,7 @@ package at.irian.cdiatwork.ideafork.user.rest;
 
 import at.irian.cdiatwork.ideafork.jwt.api.AuthenticationRequired;
 import at.irian.cdiatwork.ideafork.jwt.api.IdentityHolder;
+import at.irian.cdiatwork.ideafork.user.internal.change.UserChangeBroadcaster;
 import at.irian.cdiatwork.ideafork.user.domain.User;
 import at.irian.cdiatwork.ideafork.user.repository.UserRepository;
 import at.irian.cdiatwork.ideafork.user.rest.request.UserRequest;
@@ -23,6 +24,9 @@ public class UserResource {
 
     @Inject
     private IdentityHolder identityHolder;
+
+    @Inject
+    private UserChangeBroadcaster userChangeBroadcaster;
 
     @GET
     public PublicUserResponse loadCurrentUserDetails() {
@@ -59,6 +63,7 @@ public class UserResource {
         savedUser.setLastName(userRequest.getLastName());
 
         savedUser = userRepository.save(savedUser);
+        userChangeBroadcaster.onUserChange(savedUser);
 
         return Response.ok().entity(new PublicUserResponse(savedUser, true)).build();
     }

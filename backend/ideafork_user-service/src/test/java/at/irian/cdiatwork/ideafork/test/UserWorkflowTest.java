@@ -2,6 +2,8 @@ package at.irian.cdiatwork.ideafork.test;
 
 import at.irian.cdiatwork.ideafork.jwt.api.LoginEntryPoint;
 import at.irian.cdiatwork.ideafork.user.domain.User;
+import at.irian.cdiatwork.ideafork.user.domain.UserAction;
+import at.irian.cdiatwork.ideafork.user.repository.UserActionRepository;
 import at.irian.cdiatwork.ideafork.user.repository.UserRepository;
 import at.irian.cdiatwork.ideafork.user.rest.SimpleLoginResource;
 import at.irian.cdiatwork.ideafork.user.rest.SimpleRegistrationResource;
@@ -87,6 +89,12 @@ public class UserWorkflowTest {
 
     @Before
     public void init() {
+        UserActionRepository userActionRepository = BeanProvider.getContextualReference(UserActionRepository.class);
+        List<UserAction> allUserActions = userActionRepository.findAll();
+        for (UserAction userAction : allUserActions) {
+            userActionRepository.attachAndRemove(userAction);
+        }
+
         UserRepository userRepository = BeanProvider.getContextualReference(UserRepository.class);
         List<User> allUsers = userRepository.findAll();
         for (User user : allUsers) {
