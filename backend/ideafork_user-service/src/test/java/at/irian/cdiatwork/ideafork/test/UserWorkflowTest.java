@@ -6,6 +6,7 @@ import at.irian.cdiatwork.ideafork.user.repository.UserRepository;
 import at.irian.cdiatwork.ideafork.user.rest.SimpleLoginResource;
 import at.irian.cdiatwork.ideafork.user.rest.SimpleRegistrationResource;
 import at.irian.cdiatwork.ideafork.user.rest.UserApplication;
+import at.irian.cdiatwork.ideafork.user.rest.UserResource;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.meecrowave.junit.MonoMeecrowave;
 import org.junit.*;
@@ -23,8 +24,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.List;
 
-import static javax.ws.rs.core.Response.Status.CREATED;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static javax.ws.rs.core.Response.Status.*;
 
 public class UserWorkflowTest {
     @ClassRule
@@ -32,6 +32,7 @@ public class UserWorkflowTest {
 
     private static WebTarget userRegistrationTarget;
     private static WebTarget loginTarget;
+    private static WebTarget userTarget;
     private static Client client;
 
     @BeforeClass
@@ -41,6 +42,7 @@ public class UserWorkflowTest {
         int testHttpPort = RULE.getConfiguration().getHttpPort();
         createUserRegistrationTarget(testHttpPort);
         createLoginTarget(testHttpPort);
+        createUserTarget(testHttpPort);
     }
 
     @AfterClass
@@ -75,6 +77,14 @@ public class UserWorkflowTest {
         loginTarget = client.target(uri);
     }
 
+    private static void createUserTarget(int testHttpPort) {
+        String applicationPath = UserApplication.class.getAnnotation(ApplicationPath.class).value();
+        String userPath = UserResource.class.getAnnotation(Path.class).value();
+        String baseUserUrl = "http://localhost:" + testHttpPort + applicationPath + userPath;
+        URI uri = UriBuilder.fromUri(baseUserUrl).build();
+        userTarget = client.target(uri);
+    }
+
     @Before
     public void init() {
         UserRepository userRepository = BeanProvider.getContextualReference(UserRepository.class);
@@ -90,24 +100,54 @@ public class UserWorkflowTest {
     }
 
     @Test
-    public void loginUser() {
-        registerUser();
-        User user = new User("gp@test.org", "xyz");
-
-        Response response = loginTarget.request().buildPost(Entity.json(user)).invoke();
-        String token = response.getHeaderString(HttpHeaders.AUTHORIZATION);
-        Assert.assertNotNull(token);
-    }
-
-    @Test
     public void failedLogin() {
         registerUser();
 
-        User user = new User("gp@test.org", "wrong");
+        loginInvalidUser();
+    }
 
-        Response response = loginTarget.request().buildPost(Entity.json(user)).invoke();
+    @Test
+    public void failedUpdate() {
+        registerUser();
+        loginInvalidUser();
+
+        Response response = userTarget.request().header(HttpHeaders.AUTHORIZATION, "invalid").buildPost(Entity.json(createTestUser())).invoke();
         Assert.assertNotNull(response);
         Assert.assertEquals(UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void updateUserDetails() {
+        registerUser();
+        String token = loginUser();
+
+        updateUser(token);
+    }
+
+    @Test
+    public void reloadUserDetails() {
+        registerUser();
+
+        String token = loginUser();
+        User createdUser = updateUser(token);
+
+        Response response = userTarget.request().header(HttpHeaders.AUTHORIZATION, token).get();
+        Assert.assertEquals(OK.getStatusCode(), response.getStatus());
+        User loadedUser = response.readEntity(User.class);
+        compareUsers(createdUser, loadedUser);
+    }
+
+    @Test
+    public void findUserByNick() {
+        registerUser();
+
+        String token = loginUser();
+        User createdUser = updateUser(token);
+
+        Response response = userTarget.path(createdUser.getNickName()).request().header(HttpHeaders.AUTHORIZATION, token).get();
+        Assert.assertEquals(OK.getStatusCode(), response.getStatus());
+        User loadedUser = response.readEntity(User.class);
+        compareUsers(createdUser, loadedUser);
     }
 
     private Response registerUser() {
@@ -123,5 +163,58 @@ public class UserWorkflowTest {
 
         Assert.assertEquals("gp@test.org", createdUser.getEmail());
         return response;
+    }
+
+    private String loginUser() {
+        User user = new User("gp@test.org", "xyz");
+
+        Response response = loginTarget.request().buildPost(Entity.json(user)).invoke();
+        String token = response.getHeaderString(HttpHeaders.AUTHORIZATION);
+        Assert.assertNotNull(token);
+        return token;
+    }
+
+    private void loginInvalidUser() {
+        User user = new User("gp@test.org", "wrong");
+
+        Response response = loginTarget.request().buildPost(Entity.json(user)).invoke();
+        Assert.assertNotNull(response);
+        Assert.assertEquals(UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
+    private User updateUser(String token) {
+        User user = createTestUser();
+        Response response = userTarget.request().header(HttpHeaders.AUTHORIZATION, token).buildPost(Entity.json(user)).invoke();
+        Assert.assertNotNull(response);
+        Assert.assertEquals(OK.getStatusCode(), response.getStatus());
+        return response.readEntity(User.class);
+    }
+
+    private String updateUserWithTokenUpdate(String token) {
+        User user = createTestUser();
+
+        Response response = userTarget.request().header(HttpHeaders.AUTHORIZATION, token).buildPost(Entity.json(user)).invoke();
+        Assert.assertNotNull(response);
+        Assert.assertEquals(OK.getStatusCode(), response.getStatus());
+        String newToken = response.getHeaderString(HttpHeaders.AUTHORIZATION);
+        Assert.assertNotNull(newToken);
+        Assert.assertNotEquals(token, newToken); //a new token was sent back
+        return newToken;
+    }
+
+    private User createTestUser() {
+        User user = new User();
+        user.setNickName("os890");
+        user.setFirstName("Gerhard");
+        user.setLastName("Petracek");
+        return user;
+    }
+
+    private void compareUsers(User expectedUser, User userToCheck) {
+        Assert.assertEquals(expectedUser.getEmail(), userToCheck.getEmail());
+        Assert.assertEquals(expectedUser.getPassword(), userToCheck.getPassword());
+        Assert.assertEquals(expectedUser.getNickName(), userToCheck.getNickName());
+        Assert.assertEquals(expectedUser.getFirstName(), userToCheck.getFirstName());
+        Assert.assertEquals(expectedUser.getLastName(), userToCheck.getLastName());
     }
 }
