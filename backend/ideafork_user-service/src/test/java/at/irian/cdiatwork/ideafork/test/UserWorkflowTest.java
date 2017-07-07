@@ -133,6 +133,24 @@ public class UserWorkflowTest {
     }
 
     @Test
+    public void updateUserDetailsAfterTokenExpiration() {
+        int previousExpirationTime = TestTokenExpirationManager.replaceExpirationTimeInMilliSeconds(1);
+
+        try {
+            registerUser();
+            String token = loginUser();
+
+            forcedPause(10L);
+
+            Response response = userTarget.request().header(HttpHeaders.AUTHORIZATION, token).buildPost(Entity.json(createTestUser())).invoke();
+            Assert.assertNotNull(response);
+            Assert.assertEquals(UNAUTHORIZED.getStatusCode(), response.getStatus());
+        } finally {
+            TestTokenExpirationManager.replaceExpirationTimeInMilliSeconds(previousExpirationTime);
+        }
+    }
+
+    @Test
     public void reloadUserDetails() {
         registerUser();
 
@@ -156,6 +174,28 @@ public class UserWorkflowTest {
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         User loadedUser = response.readEntity(User.class);
         compareUsers(createdUser, loadedUser);
+    }
+
+    @Test //might fail if the requests are slower than 3s (e.g. while debugging)
+    public void renewToken() {
+        int expirationTime = 3000;
+        int previousExpirationTime = TestTokenExpirationManager.replaceExpirationTimeInMilliSeconds(expirationTime);
+
+        try {
+            registerUser();
+            String token = loginUser();
+
+            forcedPause(expirationTime - 1000L); //force a pause which is long enough to get a new token, but within the expiration-time
+            String newToken = updateUserWithTokenUpdate(token);
+            Assert.assertNotEquals(token, newToken);
+
+            forcedPause(expirationTime - 1000L); //after this call the first token is expired, but the new token is still valid
+            User loadedUser = updateUser(newToken);
+
+            Assert.assertNotNull(loadedUser);
+        } finally {
+            TestTokenExpirationManager.replaceExpirationTimeInMilliSeconds(previousExpirationTime);
+        }
     }
 
     private Response registerUser() {
@@ -208,6 +248,14 @@ public class UserWorkflowTest {
         Assert.assertNotNull(newToken);
         Assert.assertNotEquals(token, newToken); //a new token was sent back
         return newToken;
+    }
+
+    private void forcedPause(long timeInMs) {
+        try {
+            Thread.sleep(timeInMs);
+        } catch (InterruptedException e) {
+            //do nothing
+        }
     }
 
     private User createTestUser() {
